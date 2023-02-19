@@ -19,7 +19,12 @@ const sendAAuthOtp = async (id) => {
         const API_KEY = process.env.SG_API;
 
         sgMail.setApiKey(API_KEY);
-        const otp = otpGenerator.generate(6, { digits: true, specialChars: false })
+        const otp = otpGenerator.generate(6, { 
+            digits: true, 
+            specialChars: false,
+            upperCaseAlphabets: false,
+            lowerCaseAlphabets: false
+         })
 
         const capitalizeOtp = otp.toString().toUpperCase();
 
