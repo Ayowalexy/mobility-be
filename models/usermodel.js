@@ -11,6 +11,17 @@ const userSchema = new Schema({
         unique: true,
         index: true
     },
+    accountNumber: String,
+    phone: {
+        type: String,
+        unique: true,
+        index: true,
+
+    },
+    phoneVerfied: {
+        type: Boolean,
+        default: false
+    },
     password: String,
     otpToken: String,
     emailVerified: {
@@ -20,15 +31,46 @@ const userSchema = new Schema({
     canResetPassword: {
         type: Boolean,
         default: false
-    }
+    },
+    accountType: {
+        type: String,
+        default: 'Consumer',
+        enum: ['Driver', 'Consumer']
+    },
+    accountStatus: {
+        type: String,
+        default: 'active',
+        status: ['active', 'suspended']
+    },
+    accountBalance: {
+        type: Number,
+        default: 0
+    },
+    cards: [{
+        type: Schema.Types.ObjectId,
+        ref: 'Card'
+    }],
+    transactions: [{
+        type: Schema.Types.ObjectId,
+        ref: 'transactions'
+    }],
+    route: String,
+    licence: String,
+    car_type: String,
+    park: String,
+    location: String,
+    route_from: String,
+    route_to: String,
+    state: String,
+    lga: String
 
-}, { timestamps: true})
+}, { timestamps: true })
 
 userSchema.plugin(mongooseUniqueValidator, {
     message: 'Error, {VALUE} already exists.'
 });
 
-userSchema.methods.isEmailVerified = async function() {
+userSchema.methods.isEmailVerified = async function () {
     return this.emailVerified
 }
 

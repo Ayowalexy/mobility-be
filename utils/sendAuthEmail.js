@@ -26,6 +26,8 @@ const sendAAuthOtp = async (id) => {
             lowerCaseAlphabets: false
          })
 
+         console.log('otp - ', otp)
+
         const capitalizeOtp = otp.toString().toUpperCase();
 
         const signedToken = sign({ capitalizeOtp }, process.env.SECRET, {

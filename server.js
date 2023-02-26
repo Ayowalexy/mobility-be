@@ -9,7 +9,7 @@ import compression from "compression";
 import authRoutes from './routes/authRoutes.js'
 import session from "express-session";
 import colors from 'colors'
-
+import PaymentRoues from './routes/payment.js'
 const app = express();
 
 dotenv.config();
@@ -33,6 +33,7 @@ const sessionConfig = {
     }
 }
 
+
 app.use(express.json());
 app.use(compression());
 app.use(express.urlencoded({ limit: "500mb", extended: true }));
@@ -46,6 +47,7 @@ app.get('/', (req, res) => {
 })
 
 app.use('/api/v1/users', authRoutes)
+app.use('/api/v1/payments', PaymentRoues)
 
 app.use(notFound);
 app.use(errorHandler);
