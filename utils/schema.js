@@ -35,6 +35,10 @@ const signupscchema = Joi.object({
     state: Joi
         .string(),
     lga: Joi
+        .string(),
+    accountType: Joi
+        .string(),
+    referral_code: Joi
         .string()
 })
 
@@ -89,7 +93,7 @@ const fundAccountSchema = Joi.object({
 })
 
 const resolveSchema = Joi.object({
-    accountNumber: Joi
+    account_number: Joi
         .string()
         .required()
 })
@@ -104,6 +108,39 @@ const sendMoneySchema = Joi.object({
 })
 
 
+const verifyBankSchema = Joi.object({
+    account_number: Joi
+        .string()
+        .required(),
+    code: Joi
+        .string()
+        .required(),
+})
+
+const sendMoneyToOtherBankSchema = Joi.object({
+    account_number: Joi
+        .string()
+        .required(),
+    code: Joi
+        .string()
+        .required(),
+    name: Joi
+        .string()
+        .required(),
+    amount: Joi
+        .string()
+        .required()
+})
+
+const updatePasswordSchema = Joi.object({
+    old_password: Joi
+        .string()
+        .required(),
+    password: Joi
+        .string()
+        .required()
+})
+
 
 export {
     signupscchema,
@@ -113,5 +150,8 @@ export {
     phoneOtpSchema,
     fundAccountSchema,
     resolveSchema,
-    sendMoneySchema
+    sendMoneySchema,
+    verifyBankSchema,
+    sendMoneyToOtherBankSchema,
+    updatePasswordSchema
 }

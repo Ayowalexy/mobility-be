@@ -156,11 +156,11 @@ const resolveAccount = asyncHandler(async (req, res) => {
                     }
                 })
     }
-    const user = await User.findOne({ accountNumber: value.accountNumber })
+    const user = await User.findOne({ accountNumber: value.account_number })
     if (user) {
         const data = {
-            name: user.firstName.concat(' ', user.lastName),
-            accountNumber: user.accountNumber,
+            account_name: user.firstName.concat(' ', user.lastName),
+            account_number: user.accountNumber,
             type: 'intra transfer'
         }
 
@@ -237,14 +237,14 @@ const sendFund = asyncHandler(async (req, res) => {
 
 
         await receiver.save();
-        await user.save()
+        await user.save();
         await sendTransaactionEmail(user.email, senderName, value.amount, 'debit', senderName);
         res
             .status(201)
             .json(
                 {
                     status: "success",
-                    message: `You just sent ${value.amount} to ${receiverName}`,
+                    data: `You just sent ${value.amount} to ${receiverName}`,
                     meta: {}
                 })
 
@@ -274,8 +274,19 @@ const getUserCards = asyncHandler(async (req, res) => {
                 data: user.cards,
                 meta: {}
             })
+})
 
-
+const getOneTransaction = asyncHandler(async (req, res) => {
+    const transaction = await Transaction.findById(req.params.id);
+    res
+        .status(201)
+        .json(
+            {
+                status: "success",
+                message: 'One transactions',
+                data: transaction,
+                meta: {}
+            })
 })
 
 export {
@@ -284,5 +295,6 @@ export {
     getAllUserTransactions,
     resolveAccount,
     sendFund,
-    getUserCards
+    getUserCards,
+    getOneTransaction
 }

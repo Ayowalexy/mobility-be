@@ -1,6 +1,6 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/usermodel.js";
-import { signupscchema, loginSchema, phoneOtpSchema, otpSchema, } from "../utils/schema.js";
+import { signupscchema, loginSchema, phoneOtpSchema, otpSchema, updatePasswordSchema } from "../utils/schema.js";
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken';
 import otpGenerator from 'otp-generator'
@@ -9,7 +9,7 @@ import { sendSMS } from "../utils/sendOtpToPhone.js";
 
 const { sign, verify } = jwt;
 
-
+// 5 - 100 / 3 - 
 
 const signUp = asyncHandler(async (req, res) => {
     const { error, value } = signupscchema.validate(req.body);
@@ -27,8 +27,17 @@ const signUp = asyncHandler(async (req, res) => {
                 })
     }
 
+    const user_referral = await User.findOne({ referral_code: value.referral_code })
+    if (user_referral) {
+        const points = value.accountType === 'Driver' ? 50 : 30
+        user_referral.points = Number(user_referral.points) + points;
+        await user_referral.save();
+    }
+
     const hash = await bcrypt.hashSync(value.password, 12);
-    const user = new User({ ...value, password: hash });
+    const referral_code = value.lastName.toUpperCase().slice(0, 3).concat('_', value.phone.slice(value.phone.length - 4,));
+
+    const user = new User({ ...value, referral_code, accountNumber: value.phone.slice(1,), password: hash });
     await user.save();
     await sendAAuthOtp(user._id);
     res
@@ -78,7 +87,10 @@ const loginUser = asyncHandler(async (req, res) => {
                     createdAt: user.createdAt,
                     emailVerified: user.emailVerified,
                     accountNumber: user.accountNumber,
-                    accountBalance: user.accountBalance
+                    accountBalance: user.accountBalance,
+                    accountType: user.accountType,
+                    referral_code: user.referral_code,
+                    points: user.points
                 }
                 res
                     .status(200)
@@ -288,7 +300,7 @@ const verifyEmail = asyncHandler(async (req, res) => {
                 let phone = str.slice(0, idx).concat(str.slice(Number(idx) + 1,))
 
                 let msg = `Verify your phone number with ${otp}. This one time password lasts for 10 minutes`
-                await sendSMS(phone, msg);
+                // await sendSMS(phone, msg);
 
                 res
                     .status(200)
@@ -360,11 +372,59 @@ const getUserDetails = asyncHandler(async (req, res) => {
 
 })
 
+
+const updatePassword = asyncHandler(async (req, res) => {
+    const { error, value } = updatePasswordSchema.validate(req.body);
+    if (error) {
+        return res
+            .status(401)
+            .json(
+                {
+                    status: "error",
+                    message: "invalid request",
+                    meta: {
+                        error: error.message
+                    }
+                })
+    }
+
+    const user = await User.findById(req.user._id);
+
+    const match = await bcrypt.compareSync(value.old_password, user.password);
+    if (match) {
+        const hash = await bcrypt.hashSync(value.password, 12);
+        user.password = hash;
+        await user.save();
+        res
+            .status(201)
+            .json(
+                {
+                    status: "success",
+                    message: "Password updated succesfully",
+                    meta: {}
+                })
+
+    } else {
+        res
+            .status(401)
+            .json(
+                {
+                    status: "error",
+                    message: "invalid request",
+                    meta: {
+                        error: 'Password does not match'
+                    }
+                })
+    }
+
+})
+
 export {
     signUp,
     loginUser,
     verifyEmail,
     sendOtpToPhone,
     verifyPhoneOtp,
-    getUserDetails
+    getUserDetails,
+    updatePassword
 }

@@ -10,6 +10,7 @@ import authRoutes from './routes/authRoutes.js'
 import session from "express-session";
 import colors from 'colors'
 import PaymentRoues from './routes/payment.js'
+import TransferRoutes from './routes/transfer.js'
 const app = express();
 
 dotenv.config();
@@ -48,6 +49,8 @@ app.get('/', (req, res) => {
 
 app.use('/api/v1/users', authRoutes)
 app.use('/api/v1/payments', PaymentRoues)
+app.use('/api/v1/transfer', TransferRoutes)
+
 
 app.use(notFound);
 app.use(errorHandler);

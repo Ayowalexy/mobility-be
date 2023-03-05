@@ -22,6 +22,10 @@ const userSchema = new Schema({
         type: Boolean,
         default: false
     },
+    points: {
+        type: Number,
+        default: 0
+    },
     password: String,
     otpToken: String,
     emailVerified: {
@@ -31,6 +35,10 @@ const userSchema = new Schema({
     canResetPassword: {
         type: Boolean,
         default: false
+    },
+    referral_code: {
+        type: String,
+        default: ""
     },
     accountType: {
         type: String,
