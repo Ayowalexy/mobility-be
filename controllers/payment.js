@@ -36,7 +36,7 @@ const verifyCardTokenization = asyncHandler(async (req, res) => {
                 await newCard.save();
                 const newTransaction = new Transaction({
                     reference,
-                    amount,
+                    amount: amount / 100,
                     name: user.firstName.concat(' ', user.lastName),
                     type: 'credit',
                     status: 'success'
@@ -48,10 +48,11 @@ const verifyCardTokenization = asyncHandler(async (req, res) => {
             }
         } else if (data.event === 'charge.success' && type === 'charge') {
             await Transaction.findOneAndUpdate({ reference }, { status: 'success' });
-            user.accountBalance = user.accountBalance + amount;
+            user.accountBalance = user.accountBalance + (amount / 100);
             await user.save();
             const name = user.firstName.concat(' ', user.lastName);
-            await sendTransaactionEmail(user.email, name, amount, 'fund');
+            let a = amount / 100
+            await sendTransaactionEmail(user.email, name, a, 'fund');
         }
     }
 

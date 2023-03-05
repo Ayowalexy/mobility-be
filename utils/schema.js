@@ -40,6 +40,7 @@ const signupscchema = Joi.object({
         .string(),
     referral_code: Joi
         .string()
+        
 })
 
 const loginSchema = Joi.object({
