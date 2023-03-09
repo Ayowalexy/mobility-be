@@ -142,6 +142,16 @@ const updatePasswordSchema = Joi.object({
         .required()
 })
 
+const resetPasswordSchema = Joi.object({
+    password: Joi
+        .string()
+        .required(),
+    email: Joi
+        .string()
+        .email()
+        .required()
+})
+
 
 export {
     signupscchema,
@@ -154,5 +164,6 @@ export {
     sendMoneySchema,
     verifyBankSchema,
     sendMoneyToOtherBankSchema,
-    updatePasswordSchema
+    updatePasswordSchema,
+    resetPasswordSchema
 }

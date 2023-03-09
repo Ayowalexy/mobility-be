@@ -1,6 +1,6 @@
 import asyncHandler from "express-async-handler";
 import User from "../models/usermodel.js";
-import { signupscchema, loginSchema, phoneOtpSchema, otpSchema, updatePasswordSchema } from "../utils/schema.js";
+import { signupscchema, loginSchema, emailSchema, resetPasswordSchema, phoneOtpSchema, otpSchema, updatePasswordSchema } from "../utils/schema.js";
 import bcrypt from 'bcryptjs'
 import jwt from 'jsonwebtoken';
 import otpGenerator from 'otp-generator'
@@ -419,6 +419,92 @@ const updatePassword = asyncHandler(async (req, res) => {
 
 })
 
+const getForgotPasswordToken = asyncHandler(async (req, res) => {
+    const { error, value } = emailSchema.validate(req.body);
+    if (error) {
+        return res
+            .status(401)
+            .json(
+                {
+                    status: "error",
+                    message: "invalid request",
+                    meta: {
+                        error: error.message
+                    }
+                })
+    }
+    const user = await User.findOne({ email: value.email });
+    if (user) {
+        await sendAAuthOtp(user._id);
+        user.canResetPassword = true;
+        await user.save();
+        res
+            .status(201)
+            .json(
+                {
+                    status: "success",
+                    message: "Reset token sent",
+                    meta: {}
+                })
+    } else {
+        return res
+            .status(401)
+            .json(
+                {
+                    status: "error",
+                    message: "invalid request",
+                    meta: {
+                        error: 'Email does not exits'
+                    }
+                })
+    }
+
+})
+
+const changePassword = asyncHandler(async (req, res) => {
+    const { error, value } = resetPasswordSchema.validate(req.body);
+    if (error) {
+        return res
+            .status(401)
+            .json(
+                {
+                    status: "error",
+                    message: "invalid request",
+                    meta: {
+                        error: error.message
+                    }
+                })
+    }
+    const user = await User.findOne({ email: value.email })
+    if (user) {
+        const hash = await bcrypt.hashSync(value.password, 12);
+        user.password = hash;
+        await user.save();
+        res
+            .status(201)
+            .json(
+                {
+                    status: "success",
+                    message: "Passord reset successful",
+                    meta: {}
+                })
+    } else {
+        res
+            .status(401)
+            .json(
+                {
+                    status: "error",
+                    message: "invalid request",
+                    meta: {
+                        error: 'usr does not exits'
+                    }
+                })
+    }
+
+
+
+})
+
 export {
     signUp,
     loginUser,
@@ -426,5 +512,7 @@ export {
     sendOtpToPhone,
     verifyPhoneOtp,
     getUserDetails,
-    updatePassword
+    updatePassword,
+    changePassword,
+    getForgotPasswordToken
 }

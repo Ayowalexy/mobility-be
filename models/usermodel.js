@@ -70,7 +70,7 @@ const userSchema = new Schema({
     route_from: String,
     route_to: String,
     state: String,
-    lga: String
+    lga: String,
 
 }, { timestamps: true })
 
